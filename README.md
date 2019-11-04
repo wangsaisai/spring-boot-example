@@ -1,5 +1,5 @@
 # spring-boot-example
-
+an example project to learn spring boot
 
 ## build
 ```
