@@ -1,0 +1,140 @@
+apply plugin: 'org.springframework.boot'
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group 'spring-boot-example'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+    options.deprecation = true
+    options.compilerArgs << "-Xlint:unchecked"
+}
+
+buildscript {
+    repositories {
+        maven { url 'https://repo.spring.io/libs-milestone' }
+    }
+
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.0.M2'
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+
+dependencies {
+    compile 'org.postgresql:postgresql:42.2.2'
+    compile 'org.springframework.boot:spring-boot-starter-web:2.1.2.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-actuator:2.1.2.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-hateoas:2.1.2.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa:2.1.2.RELEASE'
+    compile 'io.springfox:springfox-swagger2:2.8.0'
+    compile 'io.springfox:springfox-swagger-ui:2.8.0'
+
+    compile "org.flywaydb:flyway-core:6.0.8"
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.springframework.boot:spring-boot-starter-test:2.0.7.RELEASE'
+}
+
+
+task buildDependency(type: Copy) {
+    into ('lib') {
+        from configurations.runtime
+        from 'build/libs'
+        include '*.jar'
+        exclude 'flyway-*.jar'
+        exclude '*-sources.jar'
+    }
+
+    into ('conf') {
+        from 'conf'
+        include '*'
+        rename ('application.properties.template', 'application.properties')
+        rename ('metrics.yaml.template', 'metrics.yaml')
+    }
+
+    into ('bin') {
+        from 'bin'
+        include '*.sh'
+        fileMode 0755
+    }
+
+    into ('flyway') {
+        from 'flyway'
+        include '**'
+        rename ('flyway.conf.template', 'flyway.conf')
+        filesMatching('flyway') {
+            fileMode 0755
+        }
+    }
+
+    into ('flyway/drivers') {
+        from configurations.runtime
+        include 'postgresql-*.jar'
+    }
+
+    into ('flyway/lib/community') {
+        from configurations.runtime
+        include 'flyway-*.jar'
+    }
+
+    into ('.') {
+        from 'README.md'
+        include '*'
+    }
+
+    destinationDir file('build/spring-boot-example-' + version)
+}
+
+task tarz(type: Tar) {
+    dependsOn(buildDependency)
+    archiveName = 'spring-boot-example-' + version + '.tar.gz'
+
+    into ('spring-boot-example-' + version) {
+        from 'build/spring-boot-example-' + version
+        include '**'
+    }
+
+    destinationDir file('build')
+    extension 'tar.gz'
+    compression = Compression.GZIP
+}
+
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+jar {
+    enabled = true
+}
+
+def getGitHash = { ->
+    'git rev-parse --verify --short HEAD'.execute().text.trim()
+}
+
+springBoot {
+    buildInfo {
+        properties {
+            additional = [
+                    'git.commit': getGitHash()
+            ]
+        }
+    }
+}

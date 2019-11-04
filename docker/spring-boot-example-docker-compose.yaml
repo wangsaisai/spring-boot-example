@@ -1,0 +1,25 @@
+version: '2'
+services:
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=exampledb
+    volumes:
+      - /local-path-of-postgres-storage:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    command: -c max_connections=1000
+  spring-boot-example-web:
+    image: spring-boot-example:1.0-SNAPSHOT
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=exampledb
+      - JAVA_OPTS=-server -XX:+UseConcMarkSweepGC -Xms1024m -XX:ParallelGCThreads=3
+      - SKIP_FLYEAY_ERROR=false
+    ports:
+      - "8080:8080"
