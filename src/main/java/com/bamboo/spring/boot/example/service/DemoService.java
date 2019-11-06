@@ -2,6 +2,8 @@ package com.bamboo.spring.boot.example.service;
 
 import com.bamboo.spring.boot.example.dao.DemoDao;
 import com.bamboo.spring.boot.example.entity.Demo;
+import com.bamboo.spring.boot.example.exception.ErrorCode;
+import com.bamboo.spring.boot.example.exception.ErrorCodeRuntimeException;
 import com.bamboo.spring.boot.example.model.DemoSearchInfo;
 import com.bamboo.spring.boot.example.model.DemoType;
 import com.bamboo.spring.boot.example.repository.DemoRepository;
@@ -19,7 +21,7 @@ public class DemoService {
   private DemoRepository demoRepository;
 
   public Demo findById(Long id) {
-    return demoRepository.findById(id).orElseThrow(RuntimeException::new);
+    return demoRepository.findById(id).orElseThrow(() -> new ErrorCodeRuntimeException(ErrorCode.DEMO_ID_NOT_FOUND, id));
   }
 
   public List<Demo> findByIds(List<Long> ids) {
@@ -27,7 +29,12 @@ public class DemoService {
   }
 
   public Demo findByName(String name) {
-    return demoRepository.findByName(name);
+    Demo demo = demoRepository.findByName(name);
+    if (demo == null) {
+      throw new ErrorCodeRuntimeException(ErrorCode.DEMO_NAME_NOT_FOUND, name);
+    }
+
+    return demo;
   }
 
   public List<Demo> findByType(DemoType demoType) {

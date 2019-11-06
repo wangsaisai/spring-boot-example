@@ -1,6 +1,8 @@
 package com.bamboo.spring.boot.example.controller;
 
 import com.bamboo.spring.boot.example.entity.Demo;
+import com.bamboo.spring.boot.example.exception.ErrorCode;
+import com.bamboo.spring.boot.example.exception.ErrorCodeRuntimeException;
 import com.bamboo.spring.boot.example.model.DemoSearchInfo;
 import com.bamboo.spring.boot.example.model.DemoType;
 import com.bamboo.spring.boot.example.service.DemoService;
@@ -41,7 +43,7 @@ public class DemoController {
       DemoType demoType = DemoType.valueOf(type);
       return demoService.findByType(demoType);
     } catch (IllegalArgumentException e) {
-      throw new RuntimeException("unSupport demo type", e);
+      throw new ErrorCodeRuntimeException(ErrorCode.DEMO_TYPE_UNSUPPORT, type);
     }
   }
 
