@@ -21,7 +21,8 @@ public class DemoService {
   private DemoRepository demoRepository;
 
   public Demo findById(Long id) {
-    return demoRepository.findById(id).orElseThrow(() -> new ErrorCodeRuntimeException(ErrorCode.DEMO_ID_NOT_FOUND, id));
+    return demoRepository.findById(id)
+        .orElseThrow(() -> new ErrorCodeRuntimeException(ErrorCode.DEMO_ID_NOT_FOUND, id));
   }
 
   public List<Demo> findByIds(List<Long> ids) {

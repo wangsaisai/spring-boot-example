@@ -11,12 +11,12 @@ public class Application implements CommandLineRunner {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
-  @Override
-  public void run(String... args) throws Exception {
-  }
-
   public static void main(String[] args) {
     LOGGER.info("spring boot example service start...");
     SpringApplication.run(Application.class, args);
+  }
+
+  @Override
+  public void run(String... args) throws Exception {
   }
 }
