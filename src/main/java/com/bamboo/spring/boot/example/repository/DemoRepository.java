@@ -19,7 +19,7 @@ public interface DemoRepository extends JpaRepository<Demo, Long> {
   Demo findByName(@Param("name") String name);
 
   @Transactional
-  @Query("select demo from Demo demo where demo.demoType = :demoType")
+  @Query("select demo from Demo demo where demo.type = :demoType")
   List<Demo> findByType(@Param("demoType") DemoType demoType);
 
   @Transactional
